@@ -82,6 +82,29 @@ def classificationSet (data):
 
 # Main function
 
+def formatArray (array) :
+    withouHeader = np.asarray(array[1:])
+    target = withouHeader[:,9]
+    params = np.delete(withouHeader, 9, axis = 1)
+    classificationSet(params)
+    params = params.astype(float)
+    target = map(float, target)
+    return params, target
+
+def findNormalParams (fullParams, fullTarget):
+    diamondsFullParamsTranspose = fullParams.transpose()
+    multiplyMatrix = np.matmul (diamondsFullParamsTranspose, fullParams)
+    inverseMatrix = np.linalg.inv(multiplyMatrix)
+    multiplyInverseTranspose = np.matmul(inverseMatrix, diamondsFullParamsTranspose)
+    paramsValues = np.matmul(multiplyInverseTranspose, fullTarget)
+    return paramsValues
+
+def fitParams (array):
+    scaler = MinMaxScaler(feature_range=(-0.5,0.5))
+    scaler.fit(array)
+    return scaler.transform(trainParams)
+
+
 with open('diamonds-dataset/diamonds-train.csv', 'rb') as f:
     reader = csv.reader(f)
     diamondsTrain = list(reader)
@@ -89,27 +112,16 @@ with open('diamonds-dataset/diamonds-test.csv', 'rb') as f:
     reader = csv.reader(f)
     diamondsTest = list(reader)
 
-# Criar uma funcao pois repetimos as mesmas operacioes para Train e Test
-dataSetTrain = np.asarray(diamondsTrain[1:])
-targetTrain = dataSetTrain[:,9]
-dataSetTrain = np.delete(dataSetTrain,9,axis=1)
 
-dataSetTest = np.asarray(diamondsTest[1:])
-targetTest = dataSetTest[:,9]
-dataSetTest = np.delete(dataSetTest,9,axis=1)
-
-classificationSet(dataSetTrain)
-classificationSet(dataSetTest)
-
-testDataTrainFloat = dataSetTrain.astype(float)
-testDataTestFloat = dataSetTest.astype(float)
-
-scaler = MinMaxScaler(feature_range=(-0.5,0.5))
+testParams, testTarget = formatArray(diamondsTest)
+trainParams, trainTarget = formatArray(diamondsTrain)
+trainParamsFit = fitParams (trainParams)
+testParamsFit = fitParams (testParams)
 # scaler = MinMaxScaler()
-scaler.fit(testDataTrainFloat)
-testDataTrainFloat = scaler.transform(testDataTrainFloat)
 
-print(testDataTrainFloat)
+fullParams = np.concatenate((testParams, trainParams), axis = 0)
+fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
 
-# X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
-# print(X_train)
+normalParams = findNormalParams (fullParams, fullTarget)
+
+print (normalParams)
