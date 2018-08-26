@@ -1,26 +1,13 @@
 # ROAD MAP
-# DESCONSIDERAR A PRIMEIRA COLUNA
-# SEPARA A COLUNA DE PRECO DAS DEMAIS
-# FAZER A MULTIPLICACAO DA MATRIX EM SEGUIDA DA INVERSA
+# Terminar de testar o sklearning e criar nossa propria funcao
+#     funcao de calcular o h_teta
+#     funcao para recalcular o teta de cada uma entrada do array
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from enum import Enum
 import numpy as np
 import csv
-
-CAR_AVG = (0.2 + 5.01)/2
-CAR_MAX = 5.01
-X_AVG = (0 + 10.74)/2
-X_MAX = 10.74
-Y_AVG = (0 + 58.9)/2
-Y_MAX = 58.9
-Z_AVG = (0 + 31.8)/2
-Z_MAX = 31.8
-DEP_AVG = (43 + 79)/2
-DEP_MAX = 79
-TAB_AVG = (43 + 95)/2
-TAB_MAX = 95
 
 def classificationCut (data):
     num_rows = len(data)
@@ -75,13 +62,13 @@ def classificationClarity (data):
         elif (data[i][3] == 'IF'):
             data[i][3] = 4
 
+# Transforma as strings em numeros
 def classificationSet (data):
     classificationCut(data)
     classificationColor(data)
     classificationClarity(data)
 
-# Main function
-
+# Retira o header, separa em parametros e target, formata em float e retorna em formato Array
 def formatArray (array) :
     withouHeader = np.asarray(array[1:])
     target = withouHeader[:,9]
@@ -91,6 +78,7 @@ def formatArray (array) :
     target = map(float, target)
     return params, target
 
+# Realiza as multiplicacoes de matrizes e retorna um array com os parametros
 def findNormalParams (fullParams, fullTarget):
     diamondsFullParamsTranspose = fullParams.transpose()
     multiplyMatrix = np.matmul (diamondsFullParamsTranspose, fullParams)
@@ -99,11 +87,14 @@ def findNormalParams (fullParams, fullTarget):
     paramsValues = np.matmul(multiplyInverseTranspose, fullTarget)
     return paramsValues
 
+# Transforma os parametros em valores entre -0.5 e 0.5
 def fitParams (array):
     scaler = MinMaxScaler(feature_range=(-0.5,0.5))
     scaler.fit(array)
     return scaler.transform(trainParams)
 
+
+# Main function
 
 with open('diamonds-dataset/diamonds-train.csv', 'rb') as f:
     reader = csv.reader(f)
@@ -112,12 +103,10 @@ with open('diamonds-dataset/diamonds-test.csv', 'rb') as f:
     reader = csv.reader(f)
     diamondsTest = list(reader)
 
-
 testParams, testTarget = formatArray(diamondsTest)
 trainParams, trainTarget = formatArray(diamondsTrain)
 trainParamsFit = fitParams (trainParams)
 testParamsFit = fitParams (testParams)
-# scaler = MinMaxScaler()
 
 fullParams = np.concatenate((testParams, trainParams), axis = 0)
 fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
