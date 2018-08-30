@@ -5,6 +5,7 @@
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+from sklearn import linear_model
 from enum import Enum
 import numpy as np
 import csv
@@ -93,6 +94,13 @@ def fitParams (array):
     scaler.fit(array)
     return scaler.transform(trainParams)
 
+def addColumnTetaZero (array):
+    return np.c_[np.ones(array.shape[0]), array]
+
+def createArrayTheta (numberParams, multi):
+    array = np.c_[np.ones(numberParams)]
+    array = array * multi
+    return array
 
 # Main function
 
@@ -105,12 +113,70 @@ with open('diamonds-dataset/diamonds-test.csv', 'rb') as f:
 
 testParams, testTarget = formatArray(diamondsTest)
 trainParams, trainTarget = formatArray(diamondsTrain)
-trainParamsFit = fitParams (trainParams)
-testParamsFit = fitParams (testParams)
 
-fullParams = np.concatenate((testParams, trainParams), axis = 0)
-fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
+testParams = addColumnTetaZero(testParams)
 
-normalParams = findNormalParams (fullParams, fullTarget)
+thetas = createArrayTheta(10, 100)
+# thetas = [[1],[1040],[170],[-320],[392],[-690],[77],[-208],[-9],[6]]
+alpha = 0.01
+m = testParams.shape[0]
+print m
+# FAZER O FOR ATE DETERMINADO NUMERO DE ITERACOES OU ERRO < X
 
-print (normalParams)
+testTargetTranspose = np.asarray(testTarget)
+testTargetTranspose = testTargetTranspose.reshape(testTargetTranspose.shape[0], -1)
+
+
+
+agaDeTheta = np.matmul (testParams, thetas)
+preSomatorio = agaDeTheta - testTargetTranspose
+somatorio = preSomatorio * testParams
+somaTheta = np.sum(somatorio, axis=0)
+somaTheta = somaTheta.reshape(somaTheta.shape[0], -1)
+print(somaTheta.shape[1])
+somaTheta = somaTheta / m
+somaTheta = somaTheta * alpha
+print (thetas)
+thetas = thetas - somaTheta
+print (thetas)
+
+
+
+
+
+
+
+# SCIKIT-LEARN
+# ADCIONAR A COLUNA DE 1
+
+# alph = 0.1
+# verb = True
+# maxIter = 50000
+# learningRate = "invscaling"
+# eta = 0.01
+# epsilo = 10
+#
+# linReg = linear_model.SGDRegressor(alpha= alph, average=False, epsilon=epsilo, eta0=eta,
+#        fit_intercept=True, l1_ratio=0.15, learning_rate=learningRate,
+#        loss='squared_loss', max_iter=maxIter, n_iter=None, penalty='l2',
+#        power_t=0.25, random_state=None, shuffle=True, tol=None,
+#        verbose=verb, warm_start=False)
+#
+# linReg.fit(trainParams, trainTarget)
+# print (linReg.predict(testParams))
+# print (linReg.score(trainParams, trainTarget))
+
+
+# # NORMAL
+# ADICIONAR A COLUNA DE 1 e analisar os resultados
+# trainParamsFit = fitParams (trainParams)
+# testParamsFit = fitParams (testParams)
+#
+# fullParams = np.concatenate((testParams, trainParams), axis = 0)
+# fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
+#
+# fullParams = addColumnTetaZero(fullParams)
+#
+# normalParams = findNormalParams (fullParams, fullTarget)
+#
+# print (normalParams)
