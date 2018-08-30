@@ -9,6 +9,7 @@ from sklearn import linear_model
 from enum import Enum
 import numpy as np
 import csv
+import matplotlib.pyplot as plt
 
 def classificationCut (data):
     num_rows = len(data)
@@ -47,21 +48,21 @@ def classificationClarity (data):
     num_rows = len(data)
     for i in range(num_rows):
         if (data[i][3] == 'I1'):
-            data[i][3] = -4
-        elif (data[i][3] == 'SI2'):
-            data[i][3] = -3
-        elif (data[i][3] == 'SI1'):
-            data[i][3] = -2
-        elif (data[i][3] == 'VS2'):
-            data[i][3] = -1
-        elif (data[i][3] == 'VS1'):
             data[i][3] = 1
-        elif (data[i][3] == 'VVS2'):
+        elif (data[i][3] == 'SI2'):
             data[i][3] = 2
-        elif (data[i][3] == 'VVS1'):
+        elif (data[i][3] == 'SI1'):
             data[i][3] = 3
-        elif (data[i][3] == 'IF'):
+        elif (data[i][3] == 'VS2'):
             data[i][3] = 4
+        elif (data[i][3] == 'VS1'):
+            data[i][3] = 5
+        elif (data[i][3] == 'VVS2'):
+            data[i][3] = 6
+        elif (data[i][3] == 'VVS1'):
+            data[i][3] = 7
+        elif (data[i][3] == 'IF'):
+            data[i][3] = 8
 
 # Transforma as strings em numeros
 def classificationSet (data):
@@ -102,6 +103,15 @@ def createArrayTheta (numberParams, multi):
     array = array * multi
     return array
 
+def costFunction (params, thetas, target):
+    m = params.shape[0]
+    agaDeTheta = np.matmul (params, thetas)
+    preSomatorio = agaDeTheta - target
+    return (sumSquares(preSomatorio, m))
+
+def sumSquares(array, m):
+    square = array * array
+    return (sum(square)/(2*m))
 # Main function
 
 with open('diamonds-dataset/diamonds-train.csv', 'rb') as f:
@@ -114,31 +124,49 @@ with open('diamonds-dataset/diamonds-test.csv', 'rb') as f:
 testParams, testTarget = formatArray(diamondsTest)
 trainParams, trainTarget = formatArray(diamondsTrain)
 
+trainParams = addColumnTetaZero(trainParams)
 testParams = addColumnTetaZero(testParams)
 
+
+
 thetas = createArrayTheta(10, 100)
-# thetas = [[1],[1040],[170],[-320],[392],[-690],[77],[-208],[-9],[6]]
-alpha = 0.01
-m = testParams.shape[0]
-print m
+alpha = 0.0002
+m = trainParams.shape[0]
 # FAZER O FOR ATE DETERMINADO NUMERO DE ITERACOES OU ERRO < X
 
 testTargetTranspose = np.asarray(testTarget)
 testTargetTranspose = testTargetTranspose.reshape(testTargetTranspose.shape[0], -1)
 
+trainTargetTranspose = np.asarray(trainTarget)
+trainTargetTranspose = trainTargetTranspose.reshape(trainTargetTranspose.shape[0], -1)
+xToPlot = np.array([])
+yToPlot = np.array([])
+i = 0
+custo0 = 10
+custo1 = 1
+while i < 100 and abs(1 - custo1/custo0) > 0.0001:
+    custo0 = custo1
+    agaDeTheta = np.matmul (trainParams, thetas)
+    preSomatorio = agaDeTheta - trainTargetTranspose
+    somatorio = preSomatorio * trainParams
+    somaTheta = np.sum(somatorio, axis=0)
+    somaTheta = somaTheta.reshape(somaTheta.shape[0], -1)
+    somaTheta = somaTheta / m
+    somaTheta = somaTheta * alpha
+    thetas = thetas - somaTheta
+    i = i + 1
+    custo1 = costFunction(trainParams, thetas, trainTargetTranspose)
+    xToPlot = np.append(xToPlot,i)
+    yToPlot = np.append(yToPlot,custo1)
+    print (i, custo1/custo0, custo1)
 
+plt.plot(xToPlot, yToPlot, 'ro')
+plt.show()
 
-agaDeTheta = np.matmul (testParams, thetas)
-preSomatorio = agaDeTheta - testTargetTranspose
-somatorio = preSomatorio * testParams
-somaTheta = np.sum(somatorio, axis=0)
-somaTheta = somaTheta.reshape(somaTheta.shape[0], -1)
-print(somaTheta.shape[1])
-somaTheta = somaTheta / m
-somaTheta = somaTheta * alpha
-print (thetas)
-thetas = thetas - somaTheta
-print (thetas)
+results = np.matmul (trainParams, thetas)
+print ()
+print results[:5]
+print trainTargetTranspose[:5]
 
 
 
