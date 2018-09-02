@@ -121,17 +121,28 @@ with open('diamonds-dataset/diamonds-test.csv', 'rb') as f:
     reader = csv.reader(f)
     diamondsTest = list(reader)
 
+
 testParams, testTarget = formatArray(diamondsTest)
 trainParams, trainTarget = formatArray(diamondsTrain)
 
+# rows = np.rand/ms = trainParams[rows,:]
+# print (rows)
+# print(validationParams.shape[0])
+# print(validationParams.shape[1])
+# print(validationParams[:5])
 trainParams = addColumnTetaZero(trainParams)
 testParams = addColumnTetaZero(testParams)
 
+# trainPartParams = trainParams[(trainParams.shape[0]/5):,:]
+# trainValidParams = trainParams[:(trainParams.shape[0]/5),:]
+#
+# trainPartTarget = trainTarget[(len(trainTarget)/5):]
+# trainValidTarget = trainTarget[:(len(trainTarget)/5)]
+m = trainParams.shape[0]
 
 
 thetas = createArrayTheta(10, 100)
 alpha = 0.0002
-m = trainParams.shape[0]
 # FAZER O FOR ATE DETERMINADO NUMERO DE ITERACOES OU ERRO < X
 
 testTargetTranspose = np.asarray(testTarget)
@@ -144,7 +155,10 @@ yToPlot = np.array([])
 i = 0
 custo0 = 10
 custo1 = 1
-while i < 100 and abs(1 - custo1/custo0) > 0.0001:
+
+
+# while i < 25000 and abs(1 - custo1/custo0) > 0.9*alpha:
+while i < 20000 :
     custo0 = custo1
     agaDeTheta = np.matmul (trainParams, thetas)
     preSomatorio = agaDeTheta - trainTargetTranspose
@@ -160,14 +174,14 @@ while i < 100 and abs(1 - custo1/custo0) > 0.0001:
     yToPlot = np.append(yToPlot,custo1)
     print (i, custo1/custo0, custo1)
 
-plt.plot(xToPlot, yToPlot, 'ro')
-plt.show()
 
 results = np.matmul (trainParams, thetas)
 print ()
-print results[:5]
-print trainTargetTranspose[:5]
+print (results[:5])
+print (trainTargetTranspose[:5])
 
+plt.plot(xToPlot, yToPlot, 'ro')
+plt.show()
 
 
 
@@ -195,16 +209,16 @@ print trainTargetTranspose[:5]
 # print (linReg.score(trainParams, trainTarget))
 
 
-# # NORMAL
+# NORMAL
 # ADICIONAR A COLUNA DE 1 e analisar os resultados
-# trainParamsFit = fitParams (trainParams)
-# testParamsFit = fitParams (testParams)
-#
-# fullParams = np.concatenate((testParams, trainParams), axis = 0)
-# fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
-#
-# fullParams = addColumnTetaZero(fullParams)
-#
-# normalParams = findNormalParams (fullParams, fullTarget)
-#
-# print (normalParams)
+trainParamsFit = fitParams (trainParams)
+testParamsFit = fitParams (testParams)
+
+fullParams = np.concatenate((testParams, trainParams), axis = 0)
+fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
+
+fullParams = addColumnTetaZero(fullParams)
+normalParams = findNormalParams (fullParams, fullTarget)
+
+print (normalParams)
+print (costFunction(fullParams, normalParams, fullTarget))
