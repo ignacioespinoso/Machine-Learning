@@ -209,16 +209,16 @@ plt.show()
 # print (linReg.score(trainParams, trainTarget))
 
 
-# NORMAL
-# ADICIONAR A COLUNA DE 1 e analisar os resultados
-trainParamsFit = fitParams (trainParams)
-testParamsFit = fitParams (testParams)
-
-fullParams = np.concatenate((testParams, trainParams), axis = 0)
-fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
-
-fullParams = addColumnTetaZero(fullParams)
-normalParams = findNormalParams (fullParams, fullTarget)
-
-print (normalParams)
-print (costFunction(fullParams, normalParams, fullTarget))
+# # NORMAL
+# # ADICIONAR A COLUNA DE 1 e analisar os resultados
+# trainParamsFit = fitParams (trainParams)
+# testParamsFit = fitParams (testParams)
+#
+# fullParams = np.concatenate((testParams, trainParams), axis = 0)
+# fullTarget = np.concatenate((testTarget, trainTarget), axis = 0)
+#
+# fullParams = addColumnTetaZero(fullParams)
+# normalParams = findNormalParams (fullParams, fullTarget)
+#
+# print (normalParams)
+# print (costFunction(fullParams, normalParams, fullTarget))
