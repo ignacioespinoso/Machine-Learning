@@ -4,7 +4,6 @@ import random
 def kMedoids(D, k, tmax=100):
     # determine dimensions of distance matrix D
     m, n = D.shape
-
     if k > n:
         raise Exception('too many medoids')
 
@@ -14,7 +13,8 @@ def kMedoids(D, k, tmax=100):
     invalid_medoid_inds = set([])
     rs,cs = np.where(D==0)
     # the rows, cols must be shuffled because we will keep the first duplicate below
-    index_shuf = range(len(rs))
+    index_shuf = list(range(len(rs)))
+    print (index_shuf)
     np.random.shuffle(index_shuf)
     rs = rs[index_shuf]
     cs = cs[index_shuf]
@@ -39,7 +39,7 @@ def kMedoids(D, k, tmax=100):
 
     # initialize a dictionary to represent clusters
     C = {}
-    for t in xrange(tmax):
+    for t in range(tmax):
         # determine clusters, i. e. arrays of data indices
         J = np.argmin(D[:,M], axis=1)
         for kappa in range(k):
